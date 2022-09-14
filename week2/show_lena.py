@@ -3,7 +3,7 @@ import argparse
 import cv2
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--path', default='../images/lenna.png', help='Image path.')
+parser.add_argument('--path', default='../images/lena.png', help='Image path.')
 params = parser.parse_args()
 
 
