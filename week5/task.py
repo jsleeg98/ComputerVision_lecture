@@ -52,30 +52,47 @@ plt.tight_layout()
 plt.show()
 
 
+
+# connectivity = 8
+# num_labels, labelmap = cv2.connectedComponents(otsu_mask, connectivity, cv2.CV_32S)
+#
+# otsu_mask_2 = np.hstack((otsu_mask, labelmap.astype(np.float32)/(num_labels-1)))
+# cv2.imshow('Connected components', otsu_mask_2)
+# cv2.waitKey()
+# cv2.destroyAllWindows()
 # 3
-connectivity = 8
-num_labels, labelmap = cv2.connectedComponents(otsu_mask, connectivity, cv2.CV_32S)
+image_3 = cv2.imread('task_image.png', 0)
+# cv2.imshow('test', image_3)
+# cv2.waitKey()
+# cv2.destroyAllWindows()
 
-otsu_mask_2 = np.hstack((otsu_mask, labelmap.astype(np.float32)/(num_labels-1)))
-cv2.imshow('Connected components', otsu_mask_2)
-cv2.waitKey()
-cv2.destroyAllWindows()
+otsu_thr, otsu_mask_2 = cv2.threshold(image_3, -1, 1, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+otsu_mask_2 = 255 * otsu_mask_2
+otsu_mask_inv = 255 - otsu_mask_2
 
-output = cv2.connectedComponentsWithStats(otsu_mask, connectivity, cv2.CV_32S)
+
+# cv2.imshow('test', otsu_mask_inv)
+# cv2.waitKey()
+# cv2.destroyAllWindows()
+
+connectivity = 100
+output = cv2.connectedComponentsWithStats(otsu_mask_inv, connectivity, cv2.CV_32S)
 
 num_labels, labelmap, stats, centers = output
+li_labels = []
 
-colored = np.full((otsu_mask.shape[0], otsu_mask.shape[1], 3), 0, np.uint8)
+
+colored = np.full((otsu_mask_inv.shape[0], otsu_mask_inv.shape[1], 3), 0, np.uint8)
 
 
 while True:
-    img = cv2.cvtColor(otsu_mask * 255, cv2.COLOR_GRAY2BGR)
+    img = cv2.cvtColor(otsu_mask_inv, cv2.COLOR_GRAY2BGR)
     cv2.imshow('Connected components', np.hstack((img, colored)))
 
     k = cv2.waitKey(1)
 
     if k == 32:
-        colored = np.full((otsu_mask.shape[0], otsu_mask.shape[1], 3), 0, np.uint8)
+        colored = np.full((otsu_mask_inv.shape[0], otsu_mask_inv.shape[1], 3), 0, np.uint8)
         li_randint = []
         for i in range(5):
             a = random.randint(1, num_labels)
