@@ -10,3 +10,4 @@
 |3주차|Histogram & Filtering|[week3](https://github.com/jsleeg98/ComputerVision_lecture/tree/master/week3)|
 |4주차|Frequency-based Image Filtering|[week4](https://github.com/jsleeg98/ComputerVision_lecture/tree/master/week4)|
 |5주차|Boundary Extraction|[week5](https://github.com/jsleeg98/ComputerVision_lecture/tree/master/week5)|
+|6주차|Image Segmentation|[week6](https://github.com/jsleeg98/ComputerVision_lecture/tree/master/week6)|
