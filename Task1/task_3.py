@@ -12,11 +12,10 @@ fft_shift = np.fft.fftshift(fft, axes=[0, 1])
 
 if filter_type == 'high':
     mask = np.zeros(fft.shape, np.uint8)
-    mask = cv2.circle(mask, (128, 128), radius, (255, 255), -1)
+    mask = cv2.circle(mask, (128, 128), radius, (1, 1, 1), -1)
 elif filter_type == 'low':
     mask = np.ones(fft.shape, np.uint8)
-    mask *= 255
-    mask = cv2.circle(mask, (128, 128), radius, (0, 0), -1)
+    mask = cv2.circle(mask, (128, 128), radius, (0, 0, 0), -1)
 fft_shift *= mask
 fft = np.fft.ifftshift(fft_shift, axes=[0, 1])
 
@@ -33,7 +32,7 @@ plt.imshow(image, cmap='gray')
 plt.subplot(132)
 plt.axis('off')
 plt.title('Mask')
-plt.imshow(mask_new, cmap='gray')
+plt.imshow(mask_new*255, cmap='gray')
 
 plt.subplot(133)
 plt.axis('off')

@@ -21,10 +21,12 @@ elif morph == 4:
 plt.figure(figsize=(8, 4))
 plt.subplot(121)
 plt.axis('off')
+plt.title('Original')
 plt.imshow(image_otsu, cmap='gray')
 
 plt.subplot(122)
 plt.axis('off')
+plt.title('Result')
 plt.imshow(result, cmap='gray')
 
 plt.tight_layout()
