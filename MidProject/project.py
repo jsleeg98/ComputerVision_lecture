@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 from PIL import Image, ImageEnhance
 
-img = cv2.imread('test_image_5.jpg', cv2.IMREAD_COLOR)
-img = cv2.resize(img, (600, 800))
+img = cv2.imread('test_9.jpg', cv2.IMREAD_COLOR)
+img = cv2.resize(img, (500, 600))
 show_img = np.copy(img)  # 영상 출력 이미지
 
 mouse_pressed = False
@@ -86,7 +86,7 @@ while True:
         labels, bgdModel, fgdModel = cv2.grabCut(img, labels, None, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_MASK)
 
         show_img = np.copy(img)
-        show_img[(labels == cv2.GC_PR_BGD) | (labels == cv2.GC_BGD)] //= 4  # 배경 부분 어둡게 처리
+        show_img[(labels == cv2.GC_PR_BGD) | (labels == cv2.GC_BGD)] //= 5  # 배경 부분 어둡게 처리
     elif k == ord('1'):
         label = cv2.GC_FGD - label
     elif k == ord('n'):  # 미세 조정 완료 후 다음 단계
@@ -95,62 +95,70 @@ while True:
 cv2.destroyAllWindows()
 
 mask_bg = np.where((labels == cv2.GC_PR_BGD) | (labels == cv2.GC_BGD), 1, 0).astype('uint8')  # 배경 마스크
-
+mask_obj = np.where((labels == cv2.GC_PR_BGD) | (labels == cv2.GC_BGD), 0, 1).astype('uint8')  # 물체 마스크
 def on_sigma_change(pos):  # trackbar를 이용하여 GaussianBlur sigma 조절
-    global img, result, mask_bg, show_img
+    global result, mask_bg, obj_final, bg_blur, img
     sigma = pos
     if sigma == 0:  # sigma가 0인 경우 1로 바꾸어 오류 제거
         sigma = 1
     print(f'sigma : {sigma}')
     img_blur = cv2.GaussianBlur(img, (0, 0), sigma)
     bg_blur = img_blur * mask_bg[:, :, np.newaxis]
-    result = bg_blur + show_img
+    result = bg_blur + obj_final
     cv2.imshow('result', result)
 
-obj = show_img[(labels == cv2.GC_PR_BGD) | (labels == cv2.GC_BGD)] = 0  # 배경 부분 0으로 처리
+def on_kmean_change(pos):
+    global result, bg_blur, RGB_data, obj_final
+    if pos == 0:
+        num_classes = 128
+    elif pos == 1:
+        num_classes = 64
+    elif pos == 2:
+        num_classes = 32
+    elif pos == 3:
+        num_classes = 16
+    elif pos == 4:
+        num_classes = 8
+    elif pos == 5:
+        num_classes = 4
+    print(f'num_classes : {num_classes}')
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 50, 0.1)
+    _, labels, centers = cv2.kmeans(RGB_data, num_classes, None, criteria, 5, cv2.KMEANS_RANDOM_CENTERS)
+    obj_kmean = centers[labels.flatten()].reshape(img.shape).astype(np.uint8)
+    obj_final = obj_kmean * mask_obj[:, :, np.newaxis]
+    result = bg_blur + obj_final
+    cv2.imshow('result', result)
+
+def on_sigma_r_change(pos):
+
+
+obj = img * mask_obj[:, :, np.newaxis]
+RGB_data = obj.reshape((-1, 3)).astype(np.float32)
+num_classes = 4
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 50, 0.1)
+_, labels, centers = cv2.kmeans(RGB_data, num_classes, None, criteria, 5, cv2.KMEANS_RANDOM_CENTERS)
+centers = np.uint8(centers)
+obj_kmean = centers[labels.flatten()].reshape(img.shape)
+
+obj_final = obj_kmean * mask_obj[:, :, np.newaxis]
 img_blur = cv2.GaussianBlur(img, (0, 0), 1)
 bg_blur = img_blur * mask_bg[:, :, np.newaxis]
-result = bg_blur + show_img
+result = bg_blur + obj_final
+
 cv2.namedWindow('result')
 cv2.createTrackbar('sigma', 'result', 1, 20, on_sigma_change)
-
+# cv2.createTrackbar('kmeans', 'result', 5, 5, on_kmean_change)
+cv2.createTrackbar('sigma_r', 'result', 1, 10, on_sigma_r_change)
 while True:
     cv2.imshow('result', result)
+    cv2.imshow('original', img)
     k = cv2.waitKey(1)
     if k == ord('s'):  # 현재 이미지 저장
         cv2.imwrite('result.jpg', result)
+
     elif k == ord('n'):  # 종료
         break
 cv2.destroyAllWindows()
-
-# v = 5
-# # sharpening_mask = np.array([[0, -1, 0], [-1, v, -1], [0, -1, 0]])
-# # img_sharpen = cv2.filter2D(result, -1, sharpening_mask)
-# result = Image.open('result.jpg')
-# enhancer = ImageEnhance.Sharpness(result)
-# img_sharpen = enhancer.enhance(v)
-#
-# def on_value_change(pos):  # trackbar를 이용하여 GaussianBlur sigma 조절
-#     global sharpening_mask, result, img_sharpen
-#     value = pos
-#     # sharpening_mask = np.array([[0, -1, 0], [-1, v, -1], [0, -1, 0]])
-#     # img_sharpen = cv2.filter2D(result, -1, sharpening_mask)
-#     img_sharpen = enhancer.enhance(v)
-#     cv2.imshow('sharpen', img_sharpen)
-#
-# cv2.namedWindow('sharpen')
-# cv2.createTrackbar('value', 'sharpen', 1, 100, on_value_change)
-#
-# while True:
-#     cv2.imshow('sharpen', img_sharpen)
-#     k = cv2.waitKey(1)
-#     if k == ord('n'):  # 종료
-#         break
-# cv2.destroyAllWindows()
-
-
-
-
 
 
 
