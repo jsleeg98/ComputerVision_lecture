@@ -1,9 +1,8 @@
 import cv2
 import numpy as np
 from PIL import Image, ImageEnhance
-
-img = cv2.imread('test_image_4.jpg', cv2.IMREAD_COLOR)
-# img = cv2.resize(img, (500, 600))
+img = cv2.imread('test_image_8.jpg', cv2.IMREAD_COLOR)
+img = cv2.resize(img, (500, 600))
 show_img = np.copy(img)  # 영상 출력 이미지
 
 mouse_pressed = False
