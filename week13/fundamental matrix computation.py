@@ -6,7 +6,7 @@ np.load = lambda *a, **k: np_load_old(*a, allow_pickle=True, **k)
 
 data = np.load('../images/stereo/case1/stereo.npy').item()
 Kl, Kr, Dl, Dr, left_pts, right_pts, E_from_stereo, F_from_stereo = \
-data['Kl'], data['Kr'], data['Dl'], data['Dr'], data['left_pts'], data['right_pts'], data['E'], data['F']
+    data['Kl'], data['Kr'], data['Dl'], data['Dr'], data['left_pts'], data['right_pts'], data['E'], data['F']
 
 left_pts = np.vstack(left_pts)
 right_pts = np.vstack(right_pts)
